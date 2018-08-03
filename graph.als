@@ -6,7 +6,7 @@
 open util/relation
 
 // We will be working with nodes
-some sig Node { }
+abstract sig Node { }
 
 // At some later point we will associate attributes with nodes
 abstract sig NodeAttribute { }
@@ -16,10 +16,10 @@ abstract sig EdgeAttribute { }
 
 // Graphs consists of nodes, edges, node attributes, and edge attributes
 some sig Graph {
-  nodes: set Node,
-  edges: set (Node -> Node),
-  nodeAttributes: set (Node -> NodeAttribute),
-  edgeAttributes: set (Node -> Node -> EdgeAttribute)
+  nodes: some Node,
+  edges: Node -> set Node,
+  nodeAttributes: set (Node -> set NodeAttribute),
+  edgeAttributes: set ((Node -> set Node) -> set EdgeAttribute)
 }
 
 // We will only deal with acyclic graphs for the time being
@@ -45,3 +45,5 @@ pred validEdgeAttributes(g: Graph) { g.edgeAttributes.EdgeAttribute in g.edges }
 
 // Make sure all graphs have valid edge attributes
 fact { all g: Graph | validEdgeAttributes[g] }
+
+run { } for 5 Node, 2 NodeAttribute, 1 EdgeAttribute, 1 Graph
