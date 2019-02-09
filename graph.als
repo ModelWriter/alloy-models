@@ -18,8 +18,8 @@ abstract sig EdgeAttribute { }
 some sig Graph {
   nodes: some Node,
   edges: Node -> set Node,
-  nodeAttributes: set (Node -> set NodeAttribute),
-  edgeAttributes: set ((Node -> set Node) -> set EdgeAttribute)
+  nodeAttributes: set (nodes -> set NodeAttribute),
+  edgeAttributes: set (edges -> set EdgeAttribute)
 }
 
 // We will only deal with acyclic graphs for the time being
