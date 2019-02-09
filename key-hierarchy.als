@@ -14,21 +14,6 @@ abstract sig Place { }
 // Keys have properties that are associated with a place the key is at
 enum Property { Encrypted, Plaintext }
 
-// If a key is encrypted in some place then it is not stored in plaintext at same place
-fact {
-  all k: Key | no (k.places[Encrypted] & k.places[Plaintext])
-}
-
-// If a key encrypts another key then that key must appear encrypted somewhere
-fact {
-  all k: Key, k': k.encrypts | some k'.places[Encrypted]
-}
-
-// If a key encrypts another key then it can not be stored in plaintext alongside it
-fact {
-  all k: Key, k': k.encrypts | no (k.places[Plaintext] & k'.places[Property])
-}
-
 // So now I'm going to add people that have access to places
 abstract sig Person {
   // Person has access to places
@@ -40,6 +25,32 @@ abstract sig Person {
   all k: Key | Plaintext in k.places.access => k in keys
 }
 
+// The hierarchy is acyclic
+fact {
+  all k: Key | no (k & k.^encrypts)
+}
+
+// Every key must be owned by a person or be in some place
+fact {
+  all k: Key | (some k.places || some p: Person | k in p.keys)
+}
+
+// If a key is encrypted in some place then it is not stored in plaintext at same place
+fact {
+  all k: Key | no (k.places[Encrypted] & k.places[Plaintext])
+}
+
+// If a key encrypts another key then the encrypted key
+// must appear encrypted somewhere
+fact {
+  all k: Key, k': k.encrypts | some k'.places[Encrypted]
+}
+
+// If a key encrypts another key then it can not be stored in plaintext alongside it
+fact {
+  all k: Key, k': k.encrypts | no (k.places[Plaintext] & k'.places[Property])
+}
+
 // Now some more complicated interactions between keys, people, and places. If a person
 // has access to a key and that key encrypts another key that is placed somewhere
 // the person has access to then that person also has access to that key
@@ -47,11 +58,6 @@ fact {
   all p: Person, k: p.keys, k': k.encrypts {
     some k'.places[Property] & p.access => k' in p.keys
   }
-}
-
-// Every key must be owned by a person or be in some place
-fact {
-  all k: Key | (some k.places || some p: Person | k in p.keys)
 }
 
 // Now let's spell out some concrete implementations
