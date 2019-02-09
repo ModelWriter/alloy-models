@@ -1,3 +1,4 @@
+open util/relation
 // https://dev.to/davidk01/solving-8-queens-puzzle-with-alloy-1g14
 // N Queens: https://en.wikipedia.org/wiki/Eight_queens_puzzle
 
@@ -8,7 +9,6 @@ let positions = { i: Int, j: Int | 0 <= i && i <= 7 && 0 <= j && j <= 7 }
 // Each position can have at most one queen occupying it and each queen
 // has exactly one position assigned.
 one sig Board { queens: positions one -> lone Queen }
-// one sig Board { queens: Queen lone -> one positions }
 // Absolute value difference for comparing diagonal attack positions.
 fun absDifference(m: Int, n: Int): Int {
   let difference = minus[m, n] {
@@ -17,8 +17,8 @@ fun absDifference(m: Int, n: Int): Int {
 }
 // Attack relationship in terms of coordinates.
 pred attacks(q1: (Int -> Int), q2: (Int -> Int)) {
-  let q1row = q1.univ, q1col = univ.q1,
-    q2row = q2.univ, q2col = univ.q2,
+  let q1row = dom[q1], q1col = ran[q1],
+    q2row = dom[q2], q2col = ran[q2],
     rowDifference = absDifference[q1row, q2row],
     colDifference = absDifference[q1col, q2col] {
     // Same row attacks
@@ -31,7 +31,7 @@ pred attacks(q1: (Int -> Int), q2: (Int -> Int)) {
 }
 // Make sure no two queens attack each other.
 fact notAttacking {
-  all q1, q2: Queen | q1 != q2 => !attacks[Board.queens.q1, Board.queens.q2]
+  all disj q1, q2: Queen | !attacks[Board.queens.q1, Board.queens.q2]
 }
 // Make sure every queen is assigned a position on the board. I think this is
 // redundant and follows from Board signature
