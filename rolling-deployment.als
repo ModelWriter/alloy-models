@@ -9,7 +9,7 @@ sig State {
   new: set Machine,
   undefined: set Machine
 } {
-  // The state must have all the machines at all times
+  // Machines can't randomly disappear
   Machine = old + new + undefined
   // There must always be at least 1 machine in the old or new states
   some (old + new)
@@ -21,21 +21,19 @@ sig State {
 // are performing a rolling deployment? This predicate spells out
 // those details
 pred transition(s, s': State) {
+  // New machine stay where they are. This essentially pins new machines
+  s.new in s'.new
+  // Old machines can't magically become new machines
+  no (s.old & s'.new)
+  // Now we think about what to do with machines in the old and undefined states
   some s.undefined => {
-    // If there is some machine in an undefined state then in the next state
-    // it must be in a defined state
-    one m: s.undefined | m in (s'.old + s'.new)
-    // The previous state machines must be preserved
-    s.old in s'.old
-    s.new in s'.new
+    // If there are machines in an undefined state then they must move to the new state
+    // but they don't all have to move together
+    some (s.undefined & s'.new)
   } else {
-    // There are no machines in an undefined state so pick one from the defined
-    // state and move it to an undefined state
-    one m: (s.old + s.new) {
-      m in s'.undefined
-      // All other machines except m must preserve their state
-      m in s.old => { s'.new = s.new } else { s'.old = s.old }
-    }
+    // There are no machines in an undefined state so pick some from old ones
+    // and move them to an undefined state
+    some (s.old & s'.undefined)
   }
 }
 
@@ -43,4 +41,4 @@ run {
   first.old = Machine
   last.new = Machine
   all s: State, s': s.next | transition[s, s']
-} for 5 State, 2 Machine
+} for 4 State, exactly 3 Machine
