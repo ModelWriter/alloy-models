@@ -30,13 +30,18 @@ pred transition(s, s': State) {
     // If there are machines in an undefined state then they must move to the new state
     // but they don't all have to move together
     some (s.undefined & s'.new)
+    // We don't specify what to do with old machines and let the solver decide whether
+    // it is ok to also move them to an undefined state or not
   } else {
     // There are no machines in an undefined state so pick some from old ones
-    // and move them to an undefined state
+    // and move them to an undefined state. As long as there is at least one then
+    // we are making progress but the solver could decide to move more than one
+    // which is also fine
     some (s.old & s'.undefined)
   }
 }
 
+// Now let's run the model and see what Alloy comes up with
 run {
   first.old = Machine
   last.new = Machine
