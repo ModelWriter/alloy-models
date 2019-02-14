@@ -17,7 +17,7 @@ type MachineState = 'old' | 'new' | 'updating' | 'updated';
 class Machine {
 
   // 'old' is the start state for all machines.
-  private state = 'old';
+  private state: MachineState = 'old';
 
   /**
    * @param updateDelay Length of "time" the machine should be updating.
@@ -117,7 +117,7 @@ class Environment {
 }
 
 /**
- * The simulation driver
+ * The simulation driver.
  */
 class Simulation {
 
@@ -176,6 +176,7 @@ class Simulation {
   run() {
     while (!this.doTick()) { }
   }
+
 }
 
 function main() {
@@ -189,5 +190,4 @@ function main() {
   simulation.run();
   console.log(`Simulation finished.`);
 }
-
 main();
