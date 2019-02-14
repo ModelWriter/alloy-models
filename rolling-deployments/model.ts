@@ -96,13 +96,10 @@ class Environment {
   get updatingServers() {
     return this.machines.filter(m => m.isUpdating);
   }
-  get updatedMachines() {
-    return this.machines.filter(m => m.isUpdated);
-  }
-  get allMachines() {
+  get allServers() {
     return this.machines;
   }
-  get newMachines() {
+  get newServers() {
     return this.machines.filter(m => m.isNew);
   }
 
@@ -152,8 +149,8 @@ class Simulation {
     }
 
     // If all the servers are up to date then we are done
-    const allMachines = this.environment.allMachines;
-    const newMachines = this.environment.newMachines;
+    const allMachines = this.environment.allServers;
+    const newMachines = this.environment.newServers;
     console.log(`Total machines ${allMachines.length}.`);
     console.log(`New machines ${newMachines.length}.`);
     if (allMachines.length === newMachines.length) {
